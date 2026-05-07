@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>fishPP 使用教程</title>
+  <style>
+    body {
+      font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
+      line-height: 1.75;
+      color: #1e293b;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 24px 32px;
+      background: #ffffff;
+    }
+    h2 {
+      color: #2563eb;
+      border-bottom: 2px solid #dbeafe;
+      padding-bottom: 6px;
+      margin-top: 0;
+    }
+    h3 { color: #16a34a; margin-top: 2em; }
+    h4 { color: #d97706; margin-top: 1.5em; }
+    h3.algo { color: #2563eb; }
+    h4.algo { color: #2563eb; }
+    code {
+      background: #f1f5f9;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+    pre {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px 16px;
+      font-size: 12.5px;
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 10px 0;
+    }
+    th, td {
+      border: 1px solid #e2e8f0;
+      padding: 6px 12px;
+      text-align: left;
+    }
+    th { background: #f1f5f9; }
+    .author { font-size: 14px; }
+    .footer { color: #94a3b8; font-size: 12px; margin-top: 20px; }
+    .subtitle { color: #64748b; }
+    a { color: #2563eb; text-decoration: none; font-weight: 600; }
+    a:hover { text-decoration: underline; }
+    strong { color: #0f172a; }
+    .divider {
+      border: none;
+      border-top: 1px solid #e2e8f0;
+      margin: 2em 0;
+    }
+  </style>
+</head>
+<body>
+
+<h2>fishPP - 钓鱼不空军指南</h2>
+
+<p>恭喜你发现了这个页面。既然你点进来了，说明要么你真的不会用，要么你就是好奇宝宝。
+不管哪种，坐好，我要开始讲了。</p>
+
+<!-- ══════════════════════════════════════ -->
+<h3>一、这东西是干嘛的？</h3>
+
+<p>fishPP 是一个<strong>全自动钓鱼辅助工具</strong>，专门为某款含有钓鱼玩法的游戏设计。
+它能帮你完成从扔钩到收鱼的完整流程，你只需要——<strong>看着它钓</strong>。</p>
+
+<p>核心流程是这样的：</p>
+<ol>
+  <li><strong>按 F 扔钩</strong> — 鱼竿甩出去，开始等</li>
+  <li><strong>等蓝圈出现</strong> — 屏幕上冒出一个蓝色圆圈，说明鱼上钩了</li>
+  <li><strong>按 F 拉钩</strong> — 及时收竿，别让鱼跑了</li>
+  <li><strong>A/D 操控绿点</strong> — 这是最核心的部分：画面上方出现一根绿色横条，里面有个小绿点（实际偏黄），你需要用 A 和 D 键把小点控制在横条范围内。小点往左偏就按 D 推回去，往右偏就按 A 推回去</li>
+  <li><strong>绿条消失 = 钓到了</strong> — 弹出结果界面，点击屏幕关闭</li>
+  <li><strong>自动循环</strong> — 关闭弹窗后自动再次扔钩，永不停歇</li>
+</ol>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════ -->
+<h3>二、使用步骤（手把手版）</h3>
+
+<h4>Step 0: 以管理员身份运行</h4>
+<p>这一步<strong>必须做</strong>。fishPP 使用 DirectInput 模拟键盘输入，游戏进程通常以较高权限运行，
+Windows 的 UIPI（用户界面特权隔离）会拦截来自低权限进程的输入。
+简单说就是：不开管理员 = 按了也白按。</p>
+<p>使用项目里的 <code>run_admin.bat</code> 启动即可。
+启动后看右上角的徽章，显示绿色的「管理员」就对了。
+红色「非管理员」的话……你猜怎么着？重开。</p>
+
+<h4>Step 1: 配置</h4>
+<p>如果你已经有保存好的配置文件（<code>.json</code>），直接从「配置管理」下拉框选择，点「加载」，跳到 Step 3。</p>
+<p>没有的话，点「新建配置」，继续往下看。</p>
+
+<h4>Step 2: 截图 + 框选区域</h4>
+
+<p><strong>2.1 截图</strong><br>
+在游戏画面处于钓鱼相关状态时，点右侧「截图」区域的「截屏」按钮。
+点击后会弹出提示，确认后窗口最小化，<strong>5 秒后</strong>自动截取当前屏幕。
+这 5 秒给你时间把游戏画面切到需要的钓鱼状态。也可以提前截好图用「上传」导入。</p>
+
+<p><strong>2.2 框选绿条+黄点区域</strong><br>
+点「绿条 + 黄点区域」按钮，在弹出的截图上拖拽画框，把<strong>钓鱼时绿条会出现的那一整片区域</strong>框进去。
+框大一点没关系，但别框到别的绿色东西（比如草地、树）。</p>
+
+<p><strong>2.3 框选蓝圈区域</strong><br>
+同上，框选蓝圈可能出现的位置。一般就在屏幕中间偏下的位置，钓鱼按钮附近。</p>
+
+<p>框选完成后可以点「保存」把配置存下来，下次直接加载。</p>
+
+<h4>Step 3: 开钓！</h4>
+<ol>
+  <li>切到游戏窗口（fishPP 会捕获你选择的那个显示器画面）</li>
+  <li>回到 fishPP，点「开始运行」</li>
+  <li>切回游戏，站着别动，看它表演</li>
+</ol>
+<p>左侧预览区会实时显示画面，上面画了检测标注：蓝色框是 ROI 区域，绿色框是检测到的绿条，橙色圈是黄点位置。</p>
+
+<h4>Step 4: 调参</h4>
+<p>如果 A/D 控制不够好，可以调整「力度」滑块：</p>
+<ul>
+  <li><strong>力度低（0~30%）</strong>：温柔模式，适合绿条移动慢、小幅度纠偏的场景</li>
+  <li><strong>力度中（40~60%）</strong>：均衡模式，默认值，大多数情况够用</li>
+  <li><strong>力度高（70~100%）</strong>：暴力模式，绿条移动特别快的时候用，按键更猛更持久（字面意思）</li>
+</ul>
+
+<h4>紧急停止</h4>
+<ul>
+  <li><strong>F8 键</strong>：全局热键，任何情况下按 F8 立即停止</li>
+  <li><strong>鼠标角落</strong>：把鼠标甩到屏幕四个角之一也会触发停止</li>
+  <li><strong>停止按钮</strong>：GUI 上的红色按钮</li>
+</ul>
+<p>三种保险，总有一种适合你。当然，最好的保险是「别在打副本的时候开着这玩意儿」。</p>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════ -->
+<h3>三、算法详解（给好奇的技术党）</h3>
+
+<h4 class="algo">3.1 视觉检测 — HSV 颜色阈值法</h4>
+<p>fishPP 不用模板匹配，不用深度学习，就是最朴素但最有效的 <strong>HSV 颜色空间阈值分割</strong>。</p>
+
+<p><strong>为什么用 HSV 而不是 RGB？</strong><br>
+因为 HSV 把颜色信息（Hue，色相）和亮度信息（Value）分开了。
+游戏里绿条的颜色固定，但不同场景亮度可能不同。HSV 天然对亮度变化更鲁棒。</p>
+
+<p><strong>检测流程：</strong></p>
+<ol>
+  <li><strong>BGR &rarr; HSV 转换</strong>：把截图从 BGR 色彩空间转到 HSV</li>
+  <li><strong>inRange 二值化</strong>：用预设的 HSV 上下界生成掩码（mask），范围内的像素变白，范围外的变黑</li>
+  <li><strong>形态学滤波</strong>：先开运算（MORPH_OPEN，消除噪点）再闭运算（MORPH_CLOSE，填补空洞），用 3&times;3 的核</li>
+  <li><strong>轮廓检测</strong>：在处理好的掩码上找连通域</li>
+  <li><strong>面积过滤</strong>：太小（&lt; min_area）的轮廓直接丢掉</li>
+</ol>
+
+<h4 class="algo">3.2 绿条检测 — 水平投影法</h4>
+<p>绿条是横向的条状物，如果只取最大轮廓的包围盒，很可能因为绿条边缘不规则而偏差很大。
+fishPP 用了更精确的<strong>水平投影法</strong>：</p>
+<ol>
+  <li>先对掩码做<strong>垂直投影</strong>（按行求和），找到绿条所在的行范围（活跃行 = 和值 &gt; 最大行和的 15%）</li>
+  <li>在绿条行范围内做<strong>水平投影</strong>（按列求和）</li>
+  <li>找列和 &gt; 最大列和 15% 的列</li>
+  <li>在这些列中找<strong>最长的连续段</strong>（间隔 &gt; 3 像素视为断开），这就是绿条的真实水平范围</li>
+  <li>绿条中心 = (左边界 + 右边界) / 2</li>
+</ol>
+<p>这样做的好处是：绿条的中心由其真实几何边界决定，不受形状不规则、两端渐变等因素影响。</p>
+
+<h4 class="algo">3.3 状态机 — 钓鱼流程控制</h4>
+<p>整个钓鱼流程由一个有限状态机驱动，6 个状态：</p>
+<table>
+<tr><th>状态</th><th>含义</th><th>转换条件</th></tr>
+<tr><td>IDLE</td><td>闲着</td><td>用户点开始 &rarr; CASTING</td></tr>
+<tr><td>CASTING</td><td>按 F 扔钩</td><td>按完 F 等 0.5s &rarr; WAITING_BITE</td></tr>
+<tr><td>WAITING_BITE</td><td>等鱼上钩</td><td>检测到蓝圈 &rarr; HOOKING；超时 15s &rarr; 回 IDLE</td></tr>
+<tr><td>HOOKING</td><td>按 F 拉钩</td><td>按完 F 等 0.3s &rarr; CONTROLLING</td></tr>
+<tr><td>CONTROLLING</td><td>A/D 控制绿点</td><td>绿条连续消失 ~10 帧 &rarr; FINISHED</td></tr>
+<tr><td>FINISHED</td><td>钓到了/没钓到</td><td>等 3s 点屏幕关闭弹窗，再等 &rarr; CASTING 循环</td></tr>
+</table>
+<p>还有个防空转机制：如果连续 3 轮什么都没检测到（空循环），自动回 IDLE，避免在非钓鱼场景下疯狂按键。</p>
+
+<h4 class="algo">3.4 A/D 控制 — PD 控制器 + 自适应脉冲</h4>
+<p>这是 fishPP 的核心算法，一个简化版的 <strong>PD 控制器</strong>（比例-微分）：</p>
+
+<p><strong>输入：</strong></p>
+<ul>
+  <li><code>dot_x</code>：黄点的水平位置（经 EMA 平滑）</li>
+  <li><code>bar_center</code>：绿条中心位置（经 EMA 平滑）</li>
+  <li><code>error_ratio</code> = (dot_x - bar_center) / half_width，归一化到 [-1, 1]</li>
+</ul>
+
+<p><strong>方向判定：</strong></p>
+<ul>
+  <li>error &gt; 0（黄点在中心右侧）&rarr; 按 <strong>A</strong>（向左推）</li>
+  <li>error &lt; 0（黄点在中心左侧）&rarr; 按 <strong>D</strong>（向右推）</li>
+  <li>黄点贴近绿条边缘时，方向锁定，防止穿越</li>
+</ul>
+
+<p><strong>死区：</strong><br>
+|error| &le; threshold 时不动。死区大小随力度 slider 变化：
+力度 0% 时死区 = threshold，力度 100% 时死区缩小到 threshold &times; 0.3。
+力度越大越激进，死区越小，反应越灵敏。</p>
+
+<p><strong>P 项（比例）：</strong></p>
+<pre>p_gain = 0.6 + strength &times; 0.8              # 增益范围: 0.6 ~ 1.4
+p_ms   = (22 + |error_ratio| &times; 78) &times; p_gain  # 脉冲时长: 22ms ~ 140ms</pre>
+<p>误差越大，按得越久。力度 slider 放大这个增益。</p>
+
+<p><strong>D 项（微分）：</strong></p>
+<pre>d_error  = error_ratio - prev_error_ratio   # 误差的变化速度
+d_gain   = 1.5 + strength &times; 3.0            # 增益范围: 1.5 ~ 4.5
+d_factor = clamp(1.0 + d_error &times; d_gain, 0.20, 2.50)</pre>
+<ul>
+  <li>d_error &gt; 0（误差在扩大）&rarr; d_factor &gt; 1 &rarr; 加大按键时长</li>
+  <li>d_error &lt; 0（误差在缩小）&rarr; d_factor &lt; 1 &rarr; 减小按键时长，防过冲</li>
+</ul>
+<p>这就是 PD 控制的精髓：P 负责"现在偏差多大"，D 负责"偏差变化多快"。</p>
+
+<p><strong>最终脉冲时长：</strong></p>
+<pre>duration = p_ms &times; d_factor &pm; 10% 随机抖动
+duration = clamp(duration, 12ms, 120~180ms)  # 上限随力度增大</pre>
+<p>加了一点随机抖动（&pm;10%），模拟人类操作的微小不一致，避免过于机械。</p>
+
+<p><strong>长按 vs 点按：</strong></p>
+<p>大多数时候用短脉冲（点按），但以下情况切换为长按：</p>
+<ul>
+  <li>绿条移动速度 &gt; 1.5 像素/帧（说明鱼在剧烈挣扎）</li>
+  <li>黄点偏离绿条中心超过 25% 半宽（偏太多了，得猛拉）</li>
+</ul>
+
+<h4 class="algo">3.5 信号平滑 — 指数移动平均（EMA）</h4>
+<pre>smoothed = prev &times; (1 - alpha) + current &times; alpha    # alpha = smoothing (默认 0.35)</pre>
+<p>检测结果每帧都有微小抖动（几个像素的偏差），EMA 平滑消除了这种高频噪声，
+让 A/D 控制基于稳定的信号做决策。alpha 越大跟随越快但越抖，越小越稳但响应慢。</p>
+
+<h4 class="algo">3.6 性能参数</h4>
+<ul>
+  <li><strong>主循环间隔</strong>：默认 20ms（50 FPS），用 mss 全屏截图 + OpenCV 处理</li>
+  <li><strong>结果推送</strong>：queue.Queue(maxsize=2)，满了就丢旧帧，永远展示最新画面</li>
+  <li><strong>预览刷新</strong>：30ms 定时器拉取结果，不阻塞工作线程</li>
+</ul>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════ -->
+<h3>四、FAQ</h3>
+
+<p><strong>Q: 为什么开了管理员还是没反应？</strong><br>
+A: 确认游戏在前台运行，fishPP 的「显示器」选择正确。如果你有多个显示器，
+选游戏所在的那个。另外检查一下是不是被杀毒软件拦截了输入模拟。</p>
+
+<p><strong>Q: 绿条检测不到怎么办？</strong><br>
+A: 点「测试识别」看日志。如果「匹配像素 = 0」，说明 HSV 颜色范围没覆盖到游戏中的颜色。
+可以重新框选区域，确保框选的区域干净（没有其他绿色元素干扰）。</p>
+
+<p><strong>Q: A/D 控制一直过冲怎么办？</strong><br>
+A: 把力度调低。过冲 = P 增益太大，每次按得太猛。降低力度相当于减小增益。</p>
+
+<p><strong>Q: 能不能后台运行？</strong><br>
+A: 不能。fishPP 用的是屏幕截图（mss）+ DirectInput，都需要游戏在前台。
+你可以在副屏操作其他东西，但游戏窗口不能被遮挡。</p>
+
+<p><strong>Q: 支持其他分辨率吗？</strong><br>
+A: 支持。fishPP 在启动时自动检测显示器分辨率，你只需要在对应分辨率下重新框选区域并保存配置即可。</p>
+
+<hr class="divider">
+
+<!-- ══════════════════════════════════════ -->
+<h3>五、关于作者</h3>
+
+<p class="author">
+  <strong>氕氘氚</strong>（对，就是氢的三种同位素）<br>
+  <span class="subtitle">一个觉得钓鱼小游戏太肝所以写了自动化工具的懒人。</span>
+</p>
+<p>
+  <span style="color:#2563eb;">&#9776;</span> GitHub:
+  <a href="https://github.com/HP26666">HP26666</a>
+</p>
+<p class="footer">
+  fishPP &mdash; Fish Power to the People.<br>
+  如果这个工具帮到了你，去 GitHub 给个 Star 呗，又不花钱。
+</p>
+
+</body>
+</html>
