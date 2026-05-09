@@ -2,4 +2,4 @@
 chcp 65001 >nul
 cd /d "%~dp0"
 call .venv\Scripts\activate.bat
-start "" pythonw -m fishpp.main
+start "" pythonw -m betternte.main

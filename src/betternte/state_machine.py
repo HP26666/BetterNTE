@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import time
 
-from fishpp.models import FishingState, Observation, Suggestion
+from betternte.models import FishingState, Observation, Suggestion
 
 # 防止空转：如果连续 N 次 FINISHED→CASTING 循环都没见到 bar，自动暂停
 _MAX_EMPTY_CYCLES = 3

@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <title>fishPP 使用教程</title>
+  <title>BetterNTE 使用教程</title>
   <style>
     body {
       font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
@@ -63,7 +63,7 @@
 </head>
 <body>
 
-<h2>fishPP - 钓鱼不空军指南</h2>
+<h2>BetterNTE - 钓鱼不空军指南</h2>
 
 <p>恭喜你发现了这个页面。既然你点进来了，说明要么你真的不会用，要么你就是好奇宝宝。
 不管哪种，坐好，我要开始讲了。</p>
@@ -71,7 +71,7 @@
 <!-- ══════════════════════════════════════ -->
 <h3>一、这东西是干嘛的？</h3>
 
-<p>fishPP 是一个<strong>全自动钓鱼辅助工具</strong>，专门为某款含有钓鱼玩法的游戏设计。
+<p>BetterNTE 是一个<strong>全自动钓鱼辅助工具</strong>，专门为某款含有钓鱼玩法的游戏设计。
 它能帮你完成从扔钩到收鱼的完整流程，你只需要——<strong>看着它钓</strong>。</p>
 
 <p>核心流程是这样的：</p>
@@ -90,7 +90,7 @@
 <h3>二、使用步骤（手把手版）</h3>
 
 <h4>Step 0: 以管理员身份运行</h4>
-<p>这一步<strong>必须做</strong>。fishPP 使用 DirectInput 模拟键盘输入，游戏进程通常以较高权限运行，
+<p>这一步<strong>必须做</strong>。BetterNTE 使用 DirectInput 模拟键盘输入，游戏进程通常以较高权限运行，
 Windows 的 UIPI（用户界面特权隔离）会拦截来自低权限进程的输入。
 简单说就是：不开管理员 = 按了也白按。</p>
 <p>使用项目里的 <code>run_admin.bat</code> 启动即可。
@@ -119,8 +119,8 @@ Windows 的 UIPI（用户界面特权隔离）会拦截来自低权限进程的�
 
 <h4>Step 3: 开钓！</h4>
 <ol>
-  <li>切到游戏窗口（fishPP 会捕获你选择的那个显示器画面）</li>
-  <li>回到 fishPP，点「开始运行」</li>
+  <li>切到游戏窗口（BetterNTE 会捕获你选择的那个显示器画面）</li>
+  <li>回到 BetterNTE，点「开始运行」</li>
   <li>切回游戏，站着别动，看它表演</li>
 </ol>
 <p>左侧预览区会实时显示画面，上面画了检测标注：蓝色框是 ROI 区域，绿色框是检测到的绿条，橙色圈是黄点位置。</p>
@@ -147,7 +147,7 @@ Windows 的 UIPI（用户界面特权隔离）会拦截来自低权限进程的�
 <h3>三、算法详解（给好奇的技术党）</h3>
 
 <h4 class="algo">3.1 视觉检测 — HSV 颜色阈值法</h4>
-<p>fishPP 不用模板匹配，不用深度学习，就是最朴素但最有效的 <strong>HSV 颜色空间阈值分割</strong>。</p>
+<p>BetterNTE 不用模板匹配，不用深度学习，就是最朴素但最有效的 <strong>HSV 颜色空间阈值分割</strong>。</p>
 
 <p><strong>为什么用 HSV 而不是 RGB？</strong><br>
 因为 HSV 把颜色信息（Hue，色相）和亮度信息（Value）分开了。
@@ -164,7 +164,7 @@ Windows 的 UIPI（用户界面特权隔离）会拦截来自低权限进程的�
 
 <h4 class="algo">3.2 绿条检测 — 水平投影法</h4>
 <p>绿条是横向的条状物，如果只取最大轮廓的包围盒，很可能因为绿条边缘不规则而偏差很大。
-fishPP 用了更精确的<strong>水平投影法</strong>：</p>
+BetterNTE 用了更精确的<strong>水平投影法</strong>：</p>
 <ol>
   <li>先对掩码做<strong>垂直投影</strong>（按行求和），找到绿条所在的行范围（活跃行 = 和值 &gt; 最大行和的 15%）</li>
   <li>在绿条行范围内做<strong>水平投影</strong>（按列求和）</li>
@@ -188,7 +188,7 @@ fishPP 用了更精确的<strong>水平投影法</strong>：</p>
 <p>还有个防空转机制：如果连续 3 轮什么都没检测到（空循环），自动回 IDLE，避免在非钓鱼场景下疯狂按键。</p>
 
 <h4 class="algo">3.4 A/D 控制 — PD 控制器 + 自适应脉冲</h4>
-<p>这是 fishPP 的核心算法，一个简化版的 <strong>PD 控制器</strong>（比例-微分）：</p>
+<p>这是 BetterNTE 的核心算法，一个简化版的 <strong>PD 控制器</strong>（比例-微分）：</p>
 
 <p><strong>输入：</strong></p>
 <ul>
@@ -254,7 +254,7 @@ duration = clamp(duration, 12ms, 120~180ms)  # 上限随力度增大</pre>
 <h3>四、FAQ</h3>
 
 <p><strong>Q: 为什么开了管理员还是没反应？</strong><br>
-A: 确认游戏在前台运行，fishPP 的「显示器」选择正确。如果你有多个显示器，
+A: 确认游戏在前台运行，BetterNTE 的「显示器」选择正确。如果你有多个显示器，
 选游戏所在的那个。另外检查一下是不是被杀毒软件拦截了输入模拟。</p>
 
 <p><strong>Q: 绿条检测不到怎么办？</strong><br>
@@ -265,11 +265,11 @@ A: 点「测试识别」看日志。如果「匹配像素 = 0」，说明 HSV �
 A: 把力度调低。过冲 = P 增益太大，每次按得太猛。降低力度相当于减小增益。</p>
 
 <p><strong>Q: 能不能后台运行？</strong><br>
-A: 不能。fishPP 用的是屏幕截图（mss）+ DirectInput，都需要游戏在前台。
+A: 不能。BetterNTE 用的是屏幕截图（mss）+ DirectInput，都需要游戏在前台。
 你可以在副屏操作其他东西，但游戏窗口不能被遮挡。</p>
 
 <p><strong>Q: 支持其他分辨率吗？</strong><br>
-A: 支持。fishPP 在启动时自动检测显示器分辨率，你只需要在对应分辨率下重新框选区域并保存配置即可。</p>
+A: 支持。BetterNTE 在启动时自动检测显示器分辨率，你只需要在对应分辨率下重新框选区域并保存配置即可。</p>
 
 <hr class="divider">
 
@@ -285,7 +285,7 @@ A: 支持。fishPP 在启动时自动检测显示器分辨率，你只需要在�
   <a href="https://github.com/HP26666">HP26666</a>
 </p>
 <p class="footer">
-  fishPP &mdash; Fish Power to the People.<br>
+  BetterNTE &mdash; Fish Power to the People.<br>
   如果这个工具帮到了你，去 GitHub 给个 Star 呗，又不花钱。
 </p>
 

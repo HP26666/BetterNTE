@@ -53,7 +53,7 @@ run_admin.bat
 
 ```bash
 .venv\Scripts\activate
-python -m fishpp.main
+python -m betternte.main
 ```
 
 ## 使用流程
@@ -70,7 +70,7 @@ python -m fishpp.main
 
 ```
 BetterNTE/
-├── src/fishpp/
+├── src/betternte/
 │   ├── main.py              # 入口
 │   ├── models.py            # 数据模型（AppConfig, Observation, ROI...）
 │   ├── capture.py           # 屏幕截图（mss）

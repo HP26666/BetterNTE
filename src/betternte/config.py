@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from fishpp.models import AppConfig
+from betternte.models import AppConfig
 
 DEFAULT_CONFIG_PATH = Path("config.json")
 CONFIGS_DIR = Path("configs")

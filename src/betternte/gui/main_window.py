@@ -25,13 +25,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from fishpp.capture import ScreenCapture
-from fishpp.config import CONFIGS_DIR, list_configs, load_config, save_config
-from fishpp.control import InputController, compute_ad_pulse, is_admin, admin_status_text
-from fishpp.models import AppConfig, FishingState, ResultPacket, ROI, Suggestion
-from fishpp.vision import analyze_frame, debug_detect
-from fishpp.worker import VisionWorker
-from fishpp.gui.annotation import ROISelectionDialog
+from betternte.capture import ScreenCapture
+from betternte.config import CONFIGS_DIR, list_configs, load_config, save_config
+from betternte.control import InputController, compute_ad_pulse, is_admin, admin_status_text
+from betternte.models import AppConfig, FishingState, ResultPacket, ROI, Suggestion
+from betternte.vision import analyze_frame, debug_detect
+from betternte.worker import VisionWorker
+from betternte.gui.annotation import ROISelectionDialog
 
 
 # ══════════════════════════════════════════════════════════
@@ -291,7 +291,7 @@ class MainWindow(QMainWindow):
     def __init__(self, base_path: Path) -> None:
         super().__init__()
         self.base_path = base_path
-        self.setWindowTitle("fishPP")
+        self.setWindowTitle("BetterNTE")
         self.resize(1060, 700)
         self.setMinimumSize(860, 540)
 
@@ -323,7 +323,7 @@ class MainWindow(QMainWindow):
         self.preview_timer.timeout.connect(self._drain_results)
         self.preview_timer.start()
 
-        self.log(f"fishPP 已启动 · {admin_status_text()}")
+        self.log(f"BetterNTE 已启动 · {admin_status_text()}")
 
     def closeEvent(self, event) -> None:
         self.stop_worker("关闭窗口")
@@ -952,7 +952,7 @@ class MainWindow(QMainWindow):
             html_content = "<p>教程文件丢失: tutorial.html</p>"
 
         dlg = QDialog(self)
-        dlg.setWindowTitle("fishPP 使用教程")
+        dlg.setWindowTitle("BetterNTE 使用教程")
         dlg.resize(620, 560)
         dlg.setStyleSheet("QDialog { background: #ffffff; }")
 

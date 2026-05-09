@@ -17,7 +17,7 @@ dependencies = [
 ]
 
 [project.scripts]
-betternte = "fishpp.main:main"
+betternte = "betternte.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

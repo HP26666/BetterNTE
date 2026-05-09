@@ -3,7 +3,7 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-from fishpp.models import (
+from betternte.models import (
     AppConfig,
     BarDetection,
     BlueCircleDetection,

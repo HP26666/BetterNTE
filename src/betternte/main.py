@@ -5,8 +5,8 @@ from pathlib import Path
 
 from PySide6.QtWidgets import QApplication
 
-from fishpp.config import ensure_configs_dir
-from fishpp.gui.main_window import MainWindow
+from betternte.config import ensure_configs_dir
+from betternte.gui.main_window import MainWindow
 
 
 def main() -> int:

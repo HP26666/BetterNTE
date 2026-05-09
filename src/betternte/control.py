@@ -4,7 +4,7 @@ import ctypes
 import ctypes.wintypes
 import time
 
-from fishpp.models import BarDetection, ControlConfig, DotDetection, ROI, Suggestion
+from betternte.models import BarDetection, ControlConfig, DotDetection, ROI, Suggestion
 
 _user32 = ctypes.windll.user32
 _shell32 = ctypes.windll.shell32

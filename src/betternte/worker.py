@@ -6,11 +6,11 @@ from pathlib import Path
 
 from PySide6.QtCore import QThread, Signal
 
-from fishpp.capture import ScreenCapture
-from fishpp.control import InputController, compute_ad_pulse, is_admin
-from fishpp.models import AppConfig, FishingState, ResultPacket, ROI, Suggestion
-from fishpp.state_machine import FishingStateMachine
-from fishpp.vision import analyze_frame
+from betternte.capture import ScreenCapture
+from betternte.control import InputController, compute_ad_pulse, is_admin
+from betternte.models import AppConfig, FishingState, ResultPacket, ROI, Suggestion
+from betternte.state_machine import FishingStateMachine
+from betternte.vision import analyze_frame
 
 
 class VisionWorker(QThread):

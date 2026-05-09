@@ -4,7 +4,7 @@ import mss
 import numpy as np
 import cv2
 
-from fishpp.models import CaptureConfig, ROI
+from betternte.models import CaptureConfig, ROI
 
 
 class ScreenCapture:
