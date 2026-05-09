@@ -18,7 +18,7 @@ env/
 *.swo
 
 # Runtime data
-.fishpp_data/
+.betternte_data/
 configs/
 **/configs/*.json
 image/
