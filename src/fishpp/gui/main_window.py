@@ -897,6 +897,10 @@ class MainWindow(QMainWindow):
                 cv2.rectangle(overlay, (rel.x, rel.y), (rel.x + rel.w, rel.y + rel.h), (34, 197, 94), 2)
                 cx = obs.bar.center - source_roi.x
                 cv2.line(overlay, (cx, rel.y), (cx, rel.y + rel.h), (34, 197, 94), 2)
+                left_x = obs.bar.left - source_roi.x
+                right_x = obs.bar.right - source_roi.x
+                cv2.line(overlay, (left_x, rel.y), (left_x, rel.y + rel.h), (0, 0, 255), 2)
+                cv2.line(overlay, (right_x, rel.y), (right_x, rel.y + rel.h), (0, 0, 255), 2)
             if obs.dot is not None:
                 pt = (obs.dot.x - source_roi.x, obs.dot.y - source_roi.y)
                 cv2.circle(overlay, pt, 5, (234, 88, 12), 2)

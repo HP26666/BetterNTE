@@ -133,9 +133,9 @@ class ROISet:
 @dataclass
 class ThresholdSet:
     # 固化 HSV 阈值（来自实测配置）
-    bar: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[75, 140, 144], upper=[95, 255, 255]))
-    dot: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[18, 30, 100], upper=[38, 255, 255]))
-    blue_circle: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[98, 163, 195], upper=[118, 255, 255]))
+    bar: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[80, 180, 170], upper=[88, 215, 254]))
+    dot: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[22, 45, 225], upper=[34, 150, 255]))
+    blue_circle: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[101, 154, 187], upper=[110, 228, 255]))
 
     def to_dict(self) -> dict[str, dict[str, list[int]]]:
         return {
@@ -146,12 +146,7 @@ class ThresholdSet:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> "ThresholdSet":
-        data = data or {}
-        return cls(
-            bar=HSVThreshold.from_dict(data.get("bar"), [75, 140, 144], [95, 255, 255]),
-            dot=HSVThreshold.from_dict(data.get("dot"), [18, 30, 100], [38, 255, 255]),
-            blue_circle=HSVThreshold.from_dict(data.get("blue_circle"), [98, 163, 195], [118, 255, 255]),
-        )
+        return cls()
 
 
 @dataclass

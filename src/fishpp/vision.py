@@ -34,14 +34,15 @@ def auto_hsv_bounds_from_point(frame: np.ndarray, x: int, y: int, delta_h: int =
     return lower, upper, (h, s, v)
 
 
-def _threshold_mask(view: np.ndarray, threshold: HSVThreshold) -> np.ndarray:
+def _threshold_mask(view: np.ndarray, threshold: HSVThreshold, morph: bool = True) -> np.ndarray:
     hsv = cv2.cvtColor(view, cv2.COLOR_BGR2HSV)
     lower = np.array(threshold.lower, dtype=np.uint8)
     upper = np.array(threshold.upper, dtype=np.uint8)
     mask = cv2.inRange(hsv, lower, upper)
-    kernel = np.ones((3, 3), dtype=np.uint8)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
-    mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
+    if morph:
+        kernel = np.ones((3, 3), dtype=np.uint8)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel)
     return mask
 
 
@@ -113,9 +114,10 @@ def detect_dot(frame: np.ndarray, source_roi: ROI, search_roi: ROI, hsv_threshol
     view, relative = crop_global(frame, source_roi, search_roi)
     if view is None or relative is None:
         return None
-    mask = _threshold_mask(view, hsv_threshold)
+    mask = _threshold_mask(view, hsv_threshold, morph=False)
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    filtered = [c for c in contours if cv2.contourArea(c) >= min_area]
+    dot_min_area = max(10, min_area // 4)
+    filtered = [c for c in contours if cv2.contourArea(c) >= dot_min_area]
     if not filtered:
         return None
     contour = max(filtered, key=cv2.contourArea)
