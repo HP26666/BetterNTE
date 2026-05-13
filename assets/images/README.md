@@ -1,0 +1,1 @@
+Place template source screenshots for assets/features.json here.
