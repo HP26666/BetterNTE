@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import queue
+import time
 from pathlib import Path
 from typing import Any
 
@@ -36,6 +37,7 @@ class FishingTask(TriggerTask):
         self._frame_count = 0
         self._last_stop_reason = ""
         self._suppress_next_stop_log = False
+        self._last_frame_time: float | None = None
         self._sync_trigger_interval()
 
     @property
@@ -101,6 +103,7 @@ class FishingTask(TriggerTask):
 
         self._dot_x_smoothed = self._smooth(self._dot_x_smoothed, observation.dot.x if observation.dot else None)
         self._bar_center_smoothed = self._smooth(self._bar_center_smoothed, observation.bar.center if observation.bar else None)
+        self._last_frame_time = time.monotonic()
 
         if state == FishingState.CONTROLLING:
             bar_velocity = 0.0
@@ -191,7 +194,7 @@ class FishingTask(TriggerTask):
             half = max(1.0, (bar.right - bar.left) / 2.0)
             max_bar_jump = max(80.0, half * 3.0)
             if abs(bar.center - self._bar_center_smoothed) > max_bar_jump:
-                bar = None
+                self._bar_center_smoothed = float(bar.center)
 
         if dot is not None and bar is not None:
             half = max(1.0, (bar.right - bar.left) / 2.0)
@@ -206,7 +209,7 @@ class FishingTask(TriggerTask):
                 reference_half = max(reference_half, (bar.right - bar.left) / 2.0)
             max_dot_jump = max(90.0, reference_half * 3.0)
             if abs(dot.x - self._dot_x_smoothed) > max_dot_jump:
-                dot = None
+                self._dot_x_smoothed = float(dot.x)
 
         return Observation(
             bar=bar,
@@ -220,13 +223,28 @@ class FishingTask(TriggerTask):
         if self.executor is not None:
             self.executor.log_message.emit(message)
 
-    def _smooth(self, previous: float | None, current: int | None) -> float | None:
+    def _smooth(self, previous: float | None, current: int | None, alpha_override: float | None = None) -> float | None:
         if current is None:
             return previous
         if previous is None:
             return float(current)
-        alpha = min(max(self.config.control.smoothing, 0.0), 1.0)
+        if alpha_override is not None:
+            alpha = alpha_override
+        else:
+            base_alpha = min(max(self.config.control.smoothing, 0.0), 1.0)
+            dt = self._frame_dt()
+            if dt is not None and dt > 0:
+                alpha = 1.0 - (1.0 - base_alpha) ** (dt / 0.02)
+                alpha = max(0.05, min(0.95, alpha))
+            else:
+                alpha = base_alpha
         return previous * (1.0 - alpha) + float(current) * alpha
+
+    def _frame_dt(self) -> float | None:
+        if self._last_frame_time is None:
+            return None
+        dt = time.monotonic() - self._last_frame_time
+        return dt if 0.001 < dt < 1.0 else None
 
     def _push_result(self, packet: ResultPacket) -> None:
         try:

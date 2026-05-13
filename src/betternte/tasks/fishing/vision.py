@@ -246,13 +246,21 @@ def detect_dot(
     return None
 
 
+def _circularity(contour: np.ndarray) -> float:
+    perimeter = cv2.arcLength(contour, True)
+    if perimeter <= 0:
+        return 0.0
+    area = cv2.contourArea(contour)
+    return (4.0 * np.pi * area) / (perimeter * perimeter)
+
+
 def detect_blue_circle(frame: np.ndarray, source_roi: ROI, search_roi: ROI, hsv_threshold: HSVThreshold, min_area: int) -> BlueCircleDetection:
     view, relative = crop_global(frame, source_roi, search_roi)
     if view is None or relative is None:
         return BlueCircleDetection(found=False)
     mask = _threshold_mask(view, hsv_threshold)
     contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    filtered = [c for c in contours if cv2.contourArea(c) >= min_area]
+    filtered = [c for c in contours if cv2.contourArea(c) >= min_area and _circularity(c) >= 0.45]
     if not filtered:
         return BlueCircleDetection(found=False)
     contour = max(filtered, key=cv2.contourArea)

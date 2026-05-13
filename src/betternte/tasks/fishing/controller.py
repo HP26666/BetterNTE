@@ -103,7 +103,7 @@ def compute_ad_pulse(
         edge_boost = 1.10 + s * 0.25
 
     duration_ms = p_ms * d_factor * edge_boost
-    max_ms = 95.0 + s * 45.0
+    max_ms = 130.0 + s * 20.0
     duration_ms = max(8.0, min(max_ms, duration_ms))
 
     return direction, duration_ms / 1000.0

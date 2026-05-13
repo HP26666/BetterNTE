@@ -113,7 +113,7 @@ class InputController:
         self._di.keyUp(key)
 
     def pulse(self, key: str, duration: float) -> None:
-        duration = max(0.015, min(0.12, duration))
+        duration = max(0.015, min(0.15, duration))
         self._di.keyDown(key)
         time.sleep(duration)
         self._di.keyUp(key)
@@ -248,7 +248,7 @@ class PostMessageController:
         self.key_up(key)
 
     def pulse(self, key: str, duration: float) -> None:
-        duration = max(0.015, min(0.12, duration))
+        duration = max(0.015, min(0.15, duration))
         self.key_down(key)
         time.sleep(duration)
         self.key_up(key)
