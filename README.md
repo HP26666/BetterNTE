@@ -1,8 +1,10 @@
-# fishPP
+# BetterNTE
 
-全自动钓鱼辅助工具 — 基于纯视觉识别 + PD 控制的钓鱼循环自动化。
+更好的异环 — 异环（Neverness to Everness）自动化辅助工具，对标 [ok-wuthering-waves](https://github.com/ok-oldking/ok-wuthering-waves)。
 
-## 功能
+基于纯视觉识别的异环自动化辅助，灵感来自 OK-WW（鸣潮），旨在为异环提供同等甚至更好的自动化体验。
+
+## 当前功能
 
 - **HSV 颜色阈值检测**：绿条、黄点、蓝圈三路并行识别
 - **水平投影法**：精确计算绿条几何中心，不受边缘不规则影响
@@ -10,6 +12,18 @@
 - **状态机驱动**：IDLE → CASTING → WAITING_BITE → HOOKING → CONTROLLING → FINISHED 全自动循环
 - **PySide6 GUI**：截图上传、ROI 框选、实时预览、检测标注
 - **三重安全停止**：F8 全局热键 / 鼠标角落急停 / GUI 停止按钮
+
+## 计划功能
+
+对标 OK-WW，逐步扩展异环的自动化能力：
+
+- **模板匹配**：引入 OpenCV `matchTemplate` + COCO 特征标注，识别 UI 元素
+- **目标检测**：YOLOv8 ONNX 推理，用于复杂场景的目标识别
+- **任务调度系统**：TriggerTask（持续监听）+ OneTimeTask（手动触发），支持多任务并行
+- **后台交互**：PostMessage 窗口消息模式，游戏无需置顶
+- **自动战斗**：角色技能循环、目标锁定、走位
+- **自动拾取**：掉落物检测与自动拾取
+- **自动日常**：日常任务、副本自动化
 
 ## 环境要求
 
@@ -20,8 +34,8 @@
 ## 安装
 
 ```bash
-git clone https://github.com/HP26666/fishPP.git
-cd fishPP
+git clone https://github.com/HP26666/BetterNTE.git
+cd BetterNTE
 python -m venv .venv
 .venv\Scripts\activate
 pip install -e .
@@ -39,7 +53,7 @@ run_admin.bat
 
 ```bash
 .venv\Scripts\activate
-python -m fishpp.main
+python -m betternte.main
 ```
 
 ## 使用流程
@@ -55,8 +69,8 @@ python -m fishpp.main
 ## 项目结构
 
 ```
-fishPP/
-├── src/fishpp/
+BetterNTE/
+├── src/betternte/
 │   ├── main.py              # 入口
 │   ├── models.py            # 数据模型（AppConfig, Observation, ROI...）
 │   ├── capture.py           # 屏幕截图（mss）
@@ -73,6 +87,10 @@ fishPP/
 ├── run_admin.bat            # 管理员启动脚本
 └── pyproject.toml           # 项目配置
 ```
+
+## 致谢
+
+- [ok-wuthering-waves](https://github.com/ok-oldking/ok-wuthering-waves) — 鸣潮自动化辅助工具，本项目的设计参考
 
 ## 依赖
 

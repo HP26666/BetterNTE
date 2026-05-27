@@ -4,6 +4,20 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 
+from betternte.core.models import CaptureConfig, HSVThreshold, ROI, ScreenConfig
+
+
+DEFAULT_BAR_THRESHOLD = ([80, 180, 170], [88, 215, 254])
+DEFAULT_DOT_THRESHOLD = ([17, 16, 190], [40, 255, 255])
+DEFAULT_BLUE_CIRCLE_THRESHOLD = ([101, 154, 187], [110, 228, 255])
+DEFAULT_LOOP_INTERVAL_MS = 20
+DEFAULT_CAPTURE_FPS = 50
+
+
+def _threshold_from_defaults(bounds: tuple[list[int], list[int]]) -> HSVThreshold:
+    lower, upper = bounds
+    return HSVThreshold(lower=list(lower), upper=list(upper))
+
 
 class FishingState(str, Enum):
     IDLE = "IDLE"
@@ -21,84 +35,6 @@ class Suggestion(str, Enum):
     PRESS_F = "PRESS_F"
     CLICK_SCREEN = "CLICK_SCREEN"
     STOP = "STOP"
-
-
-@dataclass
-class ROI:
-    name: str
-    x: int = 0
-    y: int = 0
-    w: int = 0
-    h: int = 0
-
-    def valid(self) -> bool:
-        return self.w > 0 and self.h > 0
-
-    def to_dict(self) -> dict[str, int | str]:
-        return {"name": self.name, "x": self.x, "y": self.y, "w": self.w, "h": self.h}
-
-    @classmethod
-    def from_dict(cls, name: str, data: dict[str, Any] | None) -> "ROI":
-        data = data or {}
-        return cls(
-            name=data.get("name", name),
-            x=int(data.get("x", 0)),
-            y=int(data.get("y", 0)),
-            w=int(data.get("w", 0)),
-            h=int(data.get("h", 0)),
-        )
-
-    def center(self) -> tuple[int, int]:
-        return self.x + self.w // 2, self.y + self.h // 2
-
-    def relative_to(self, origin_x: int, origin_y: int) -> "ROI":
-        return ROI(name=self.name, x=self.x - origin_x, y=self.y - origin_y, w=self.w, h=self.h)
-
-    def clamp(self, width: int, height: int) -> "ROI":
-        x = max(0, min(self.x, width))
-        y = max(0, min(self.y, height))
-        w = max(0, min(self.w, width - x))
-        h = max(0, min(self.h, height - y))
-        return ROI(name=self.name, x=x, y=y, w=w, h=h)
-
-
-@dataclass
-class HSVThreshold:
-    lower: list[int] = field(default_factory=lambda: [20, 80, 120])
-    upper: list[int] = field(default_factory=lambda: [40, 255, 255])
-
-    def to_dict(self) -> dict[str, list[int]]:
-        return {"lower": [int(v) for v in self.lower], "upper": [int(v) for v in self.upper]}
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any] | None, default_lower: list[int], default_upper: list[int]) -> "HSVThreshold":
-        data = data or {}
-        return cls(
-            lower=[int(v) for v in data.get("lower", default_lower)],
-            upper=[int(v) for v in data.get("upper", default_upper)],
-        )
-
-
-@dataclass
-class ScreenConfig:
-    width: int = 1920
-    height: int = 1080
-
-    def to_dict(self) -> dict[str, int]:
-        return {"width": int(self.width), "height": int(self.height)}
-
-
-@dataclass
-class CaptureConfig:
-    monitor_index: int = 1
-
-    def to_dict(self) -> dict[str, Any]:
-        return {"monitor_index": int(self.monitor_index)}
-
-    @classmethod
-    def from_dict(cls, data: dict[str, Any] | None) -> "CaptureConfig":
-        data = data or {}
-        return cls(monitor_index=int(data.get("monitor_index", 1)))
 
 
 @dataclass
@@ -132,10 +68,9 @@ class ROISet:
 
 @dataclass
 class ThresholdSet:
-    # 固化 HSV 阈值（来自实测配置）
-    bar: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[80, 180, 170], upper=[88, 215, 254]))
-    dot: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[22, 45, 225], upper=[34, 150, 255]))
-    blue_circle: HSVThreshold = field(default_factory=lambda: HSVThreshold(lower=[101, 154, 187], upper=[110, 228, 255]))
+    bar: HSVThreshold = field(default_factory=lambda: _threshold_from_defaults(DEFAULT_BAR_THRESHOLD))
+    dot: HSVThreshold = field(default_factory=lambda: _threshold_from_defaults(DEFAULT_DOT_THRESHOLD))
+    blue_circle: HSVThreshold = field(default_factory=lambda: _threshold_from_defaults(DEFAULT_BLUE_CIRCLE_THRESHOLD))
 
     def to_dict(self) -> dict[str, dict[str, list[int]]]:
         return {
@@ -146,23 +81,46 @@ class ThresholdSet:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> "ThresholdSet":
-        return cls()
+        data = data or {}
+        return cls(
+            bar=HSVThreshold.from_dict(data.get("bar"), DEFAULT_BAR_THRESHOLD[0], DEFAULT_BAR_THRESHOLD[1]),
+            dot=HSVThreshold.from_dict(data.get("dot"), DEFAULT_DOT_THRESHOLD[0], DEFAULT_DOT_THRESHOLD[1]),
+            blue_circle=HSVThreshold.from_dict(
+                data.get("blue_circle"),
+                DEFAULT_BLUE_CIRCLE_THRESHOLD[0],
+                DEFAULT_BLUE_CIRCLE_THRESHOLD[1],
+            ),
+        )
 
 
 @dataclass
 class ControlConfig:
     margin: int = 10
     threshold: int = 8
-    loop_interval_ms: int = 20
+    loop_interval_ms: int = DEFAULT_LOOP_INTERVAL_MS
     min_area: int = 60
     smoothing: float = 0.35
-    strength: float = 0.5  # 0.0~1.0 控制力度
+    strength: float = 0.5
+    capture_fps_value: int = DEFAULT_CAPTURE_FPS
+
+    def capture_fps(self) -> int:
+        return max(1, int(self.capture_fps_value))
+
+    def actual_capture_fps(self) -> int:
+        return max(1, int(round(1000.0 / max(1, self.loop_interval_ms))))
+
+    def set_capture_fps(self, fps: int) -> None:
+        fps = max(1, int(fps))
+        self.capture_fps_value = fps
+        self.loop_interval_ms = max(1, int(round(1000.0 / fps)))
 
     def to_dict(self) -> dict[str, int | float | str]:
         return {
             "margin": int(self.margin),
             "threshold": int(self.threshold),
             "loop_interval_ms": int(self.loop_interval_ms),
+            "capture_fps": int(self.capture_fps()),
+            "actual_capture_fps": int(self.actual_capture_fps()),
             "min_area": int(self.min_area),
             "smoothing": float(self.smoothing),
             "strength": float(self.strength),
@@ -171,13 +129,20 @@ class ControlConfig:
     @classmethod
     def from_dict(cls, data: dict[str, Any] | None) -> "ControlConfig":
         data = data or {}
+        fps_value = int(data.get("capture_fps", 0) or 0)
+        loop_interval_ms = int(data.get("loop_interval_ms", DEFAULT_LOOP_INTERVAL_MS))
+        if fps_value > 0 and "loop_interval_ms" not in data:
+            loop_interval_ms = max(1, int(round(1000.0 / fps_value)))
+        if fps_value <= 0:
+            fps_value = max(1, int(round(1000.0 / max(1, loop_interval_ms))))
         return cls(
             margin=int(data.get("margin", 10)),
             threshold=int(data.get("threshold", 8)),
-            loop_interval_ms=int(data.get("loop_interval_ms", 20)),
+            loop_interval_ms=loop_interval_ms,
             min_area=int(data.get("min_area", 60)),
             smoothing=float(data.get("smoothing", 0.35)),
             strength=float(data.get("strength", 0.5)),
+            capture_fps_value=fps_value,
         )
 
 
@@ -263,3 +228,21 @@ class ResultPacket:
     message: str = ""
     dot_x_smoothed: float | None = None
     bar_center_smoothed: float | None = None
+
+
+STATE_COLORS: dict[FishingState, tuple[str, str]] = {
+    FishingState.IDLE:          ("#64748b", "IDLE"),
+    FishingState.CASTING:       ("#d97706", "CAST"),
+    FishingState.WAITING_BITE:  ("#2563eb", "WAIT"),
+    FishingState.HOOKING:       ("#dc2626", "HOOK"),
+    FishingState.CONTROLLING:   ("#16a34a", "CTRL"),
+    FishingState.FINISHED:      ("#7c3aed", "DONE"),
+}
+SUGGESTION_COLORS: dict[Suggestion, tuple[str, str]] = {
+    Suggestion.NONE:        ("#94a3b8", "-"),
+    Suggestion.A:           ("#2563eb", "A"),
+    Suggestion.D:           ("#2563eb", "D"),
+    Suggestion.PRESS_F:     ("#d97706", "F"),
+    Suggestion.CLICK_SCREEN:("#dc2626", "CLK"),
+    Suggestion.STOP:        ("#ef4444", "STOP"),
+}

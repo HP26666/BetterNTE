@@ -3,3 +3,7 @@ mss>=10.0.0
 opencv-python>=4.10.0
 numpy>=2.0.0
 pydirectinput>=1.0.4
+pywin32>=306
+onnxruntime>=1.17.0
+pynput>=1.7.6
+Pillow>=10.3.0

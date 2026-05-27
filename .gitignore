@@ -18,10 +18,18 @@ env/
 *.swo
 
 # Runtime data
-.fishpp_data/
+.betternte_data/
 configs/
 **/configs/*.json
 image/
+
+# AI context / prompts (not for distribution)
+MEMORY.md
+REFACTOR_PROMPT.md
+FIX_REPORT_20260511.md
+
+# Build artifacts
+*.zip
 
 # OS
 Thumbs.db

@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "fishpp"
-version = "0.2.0"
-description = "Pure vision fishing assistant with a PySide6 configuration UI"
+name = "betternte"
+version = "0.3.0"
+description = "BetterNTE - 异环（Neverness to Everness）自动化辅助工具"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
@@ -14,10 +14,14 @@ dependencies = [
     "opencv-python>=4.10.0",
     "numpy>=2.0.0",
     "pydirectinput>=1.0.4",
+    "Pillow>=10.3.0",
+    "pywin32>=306",
+    "onnxruntime>=1.17.0",
+    "pynput>=1.7.6",
 ]
 
 [project.scripts]
-fishpp = "fishpp.main:main"
+betternte = "betternte.main:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

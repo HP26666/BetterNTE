@@ -6,7 +6,7 @@ from PySide6.QtCore import QPoint, QRect, Qt, Signal
 from PySide6.QtGui import QColor, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import QDialog, QDialogButtonBox, QLabel, QScrollArea, QVBoxLayout, QWidget
 
-from fishpp.models import ROI
+from betternte.models import ROI
 
 
 def ndarray_to_qpixmap(image: np.ndarray) -> QPixmap:
