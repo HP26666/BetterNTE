@@ -29,7 +29,15 @@ from betternte.tasks.fishing.models import (
     DEFAULT_CAPTURE_FPS,
     DEFAULT_DOT_THRESHOLD,
 )
-from betternte.tasks.fishing.vision import analyze_frame, detect_bar, detect_dot
+from betternte.tasks.fishing.vision import (
+    analyze_frame,
+    debug_detect,
+    detect_bar,
+    detect_dot,
+    dot_debug_lines,
+    draw_debug_panel,
+    prepare_dot_mask,
+)
 
 
 class _PreviewLabel(QLabel):
@@ -171,7 +179,10 @@ class _ThresholdPreviewPanel(QWidget):
             self._show_placeholder("当前 ROI 超出截图范围，无法生成预览。")
             return
 
-        mask = threshold_mask(view, threshold, morph=morph)
+        if target_key == "dot":
+            mask = prepare_dot_mask(view, threshold)
+        else:
+            mask = threshold_mask(view, threshold, morph=morph)
         if target_key == "bar":
             bridge_kernel = np.ones((3, 9), dtype=np.uint8)
             mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, bridge_kernel)
@@ -179,6 +190,7 @@ class _ThresholdPreviewPanel(QWidget):
         observation = analyze_frame(self._frame, self._source_roi, self._config)
         raw_dot = None
         filtered_dot = None
+        dot_info: dict | None = None
         if target_key == "dot":
             bar = detect_bar(
                 self._frame,
@@ -201,6 +213,15 @@ class _ThresholdPreviewPanel(QWidget):
                 self._config.rois.bar_area,
                 self._config.hsv_thresholds.dot,
                 self._config.control.min_area,
+                bar=bar,
+            )
+            dot_info = debug_detect(
+                self._frame,
+                self._source_roi,
+                self._config.rois.bar_area,
+                self._config.hsv_thresholds.dot,
+                self._config.control.min_area,
+                mode="dot",
                 bar=bar,
             )
         overlay = view.copy()
@@ -270,10 +291,15 @@ class _ThresholdPreviewPanel(QWidget):
                 2,
             )
 
+        if target_key == "dot" and dot_info is not None:
+            draw_debug_panel(overlay, dot_debug_lines(dot_info), origin=(8, 8))
+
         self._source_label.setText("")
         self._mask_label.setText("")
         self._source_label.setPixmap(_to_pixmap(overlay, (self._source_label.width(), self._source_label.height())))
         mask_bgr = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        if target_key == "dot" and dot_info is not None:
+            draw_debug_panel(mask_bgr, dot_debug_lines(dot_info), origin=(8, 8), panel_color=(30, 41, 59), accent_color=(245, 158, 11))
         self._mask_label.setPixmap(_to_pixmap(mask_bgr, (self._mask_label.width(), self._mask_label.height())))
 
         contour_count = len(cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[0])
@@ -282,7 +308,10 @@ class _ThresholdPreviewPanel(QWidget):
         if target_key == "bar" and observation.bar is not None:
             detected_text = f"center={observation.bar.center} left={observation.bar.left} right={observation.bar.right}"
         elif target_key == "dot" and observation.dot is not None:
-            detected_text = f"黄线 x={observation.dot.x} y={observation.dot.y} area={observation.dot.area:.0f}"
+            detected_text = (
+                f"黄线 x={observation.dot.x} y={observation.dot.y} "
+                f"w={observation.dot.bbox.w} h={observation.dot.bbox.h} area={observation.dot.area:.0f}"
+            )
         elif target_key == "dot" and raw_dot is not None:
             filtered_text = "通过" if filtered_dot is not None else "被约束过滤"
             detected_text = (
@@ -292,11 +321,19 @@ class _ThresholdPreviewPanel(QWidget):
         elif target_key == "blue_circle" and observation.blue_circle is not None and observation.blue_circle.found:
             detected_text = f"x={observation.blue_circle.x} y={observation.blue_circle.y}"
 
-        self._stats_label.setText(
-            f"ROI: {search_roi.name} ({search_roi.w}x{search_roi.h})\n"
-            f"阈值: lower={threshold.lower} upper={threshold.upper}\n"
-            f"像素: {pixels} · 轮廓: {contour_count} · 识别: {detected_text}"
-        )
+        if target_key == "dot" and dot_info is not None:
+            self._stats_label.setText(
+                f"ROI: {search_roi.name} ({search_roi.w}x{search_roi.h})\n"
+                f"阈值: lower={threshold.lower} upper={threshold.upper}\n"
+                f"raw像素: {dot_info.get('raw_mask_pixels', 0)} · prep像素: {dot_info.get('prepared_mask_pixels', 0)}\n"
+                f"raw轮廓: {dot_info.get('raw_contours', 0)} · prep轮廓: {dot_info.get('prepared_contours', 0)} · 识别: {detected_text}"
+            )
+        else:
+            self._stats_label.setText(
+                f"ROI: {search_roi.name} ({search_roi.w}x{search_roi.h})\n"
+                f"阈值: lower={threshold.lower} upper={threshold.upper}\n"
+                f"像素: {pixels} · 轮廓: {contour_count} · 识别: {detected_text}"
+            )
 
 
 class _HSVThresholdEditor(QWidget):

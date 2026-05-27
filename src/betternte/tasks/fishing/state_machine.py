@@ -18,6 +18,11 @@ _HOOKING_BAR_TIMEOUT = 0.06
 _FINISHED_CLICK_DELAY = 3.0
 _FINISHED_CAST_DELAY = 5.0
 
+# 卡死恢复
+_STUCK_TIMEOUT = 10.0
+_RECOVERY_F_DELAY = 3.0
+_MAX_RECOVERY_ATTEMPTS = 5
+
 
 class FishingStateMachine:
     def __init__(self) -> None:
@@ -29,6 +34,10 @@ class FishingStateMachine:
         self._hooking_bar_since: float | None = None
         self._empty_cycles = 0
         self._ever_saw_bar = False
+        self._non_active_since: float | None = None
+        self._recovery_attempts = 0
+        self._recovery_phase = 0
+        self._recovery_click_at: float | None = None
 
     def reset(self) -> None:
         self.state = FishingState.IDLE
@@ -39,6 +48,10 @@ class FishingStateMachine:
         self._hooking_bar_since = None
         self._empty_cycles = 0
         self._ever_saw_bar = False
+        self._non_active_since = None
+        self._recovery_attempts = 0
+        self._recovery_phase = 0
+        self._recovery_click_at = None
 
     def start(self) -> None:
         self._transition(FishingState.CASTING)
@@ -55,14 +68,39 @@ class FishingStateMachine:
             self._f_triggered = False
         if new_state != FishingState.CONTROLLING:
             self._bar_missing_since = None
+        if new_state in (FishingState.CONTROLLING, FishingState.HOOKING):
+            self._non_active_since = None
+            self._recovery_attempts = 0
+            self._recovery_phase = 0
 
     def step(self, observation: Observation) -> tuple[FishingState, Suggestion]:
         now = time.monotonic()
-        elapsed = now - self._entered_at
-        suggestion = Suggestion.NONE
 
         if self.state == FishingState.IDLE:
-            return self.state, suggestion
+            return self.state, Suggestion.NONE
+
+        # 追踪非活跃时间
+        if self.state in (FishingState.CONTROLLING, FishingState.HOOKING):
+            self._non_active_since = None
+            self._recovery_attempts = 0
+            self._recovery_phase = 0
+        elif self._non_active_since is None:
+            self._non_active_since = now
+
+        # 卡死恢复检查
+        if self._non_active_since is not None and (now - self._non_active_since) >= _STUCK_TIMEOUT:
+            # 检测到钓鱼活动则中止恢复
+            has_activity = (
+                (observation.blue_circle is not None and observation.blue_circle.found)
+                or observation.bar_visible
+            )
+            if not has_activity:
+                return self._handle_stuck_recovery(now)
+
+            self._recovery_phase = 0
+
+        elapsed = now - self._entered_at
+        suggestion = Suggestion.NONE
 
         if self.state == FishingState.CASTING:
             if not self._f_triggered:
@@ -140,3 +178,21 @@ class FishingStateMachine:
                 self._transition(FishingState.CASTING)
 
         return self.state, suggestion
+
+    def _handle_stuck_recovery(self, now: float) -> tuple[FishingState, Suggestion]:
+        if self._recovery_attempts >= _MAX_RECOVERY_ATTEMPTS:
+            self._transition(FishingState.IDLE)
+            return FishingState.IDLE, Suggestion.STOP
+
+        if self._recovery_phase == 0:
+            self._recovery_phase = 1
+            self._recovery_click_at = now
+            self._recovery_attempts += 1
+            return self.state, Suggestion.CLICK_SCREEN
+
+        if now - self._recovery_click_at >= _RECOVERY_F_DELAY:
+            self._recovery_phase = 0
+            self._non_active_since = now
+            return self.state, Suggestion.PRESS_F
+
+        return self.state, Suggestion.NONE

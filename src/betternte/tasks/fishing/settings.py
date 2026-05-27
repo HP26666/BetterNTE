@@ -34,7 +34,7 @@ from betternte.tasks.fishing.models import STATE_COLORS, SUGGESTION_COLORS
 from betternte.tasks.fishing.advanced_dialog import FishingAdvancedSettingsDialog
 from betternte.tasks.fishing.controller import compute_ad_pulse
 from betternte.tasks.fishing.models import AppConfig, FishingState, ResultPacket, ROI, Suggestion
-from betternte.tasks.fishing.vision import analyze_frame, debug_detect
+from betternte.tasks.fishing.vision import analyze_frame, debug_detect, dot_debug_lines, draw_debug_panel
 from betternte.tasks.fishing.worker import FishingTask
 from betternte.gui.annotation import ROISelectionDialog
 
@@ -616,9 +616,37 @@ class FishingSettingsPanel(QWidget):
         ]:
             roi = config.rois.get(roi_key)
             thresh = getattr(config.hsv_thresholds, thresh_key)
-            info = debug_detect(frame, source_roi, roi, thresh, config.control.min_area)
+            debug_mode = "dot" if thresh_key == "dot" else "generic"
+            info = debug_detect(
+                frame,
+                source_roi,
+                roi,
+                thresh,
+                config.control.min_area,
+                mode=debug_mode,
+                bar=observation.bar if thresh_key == "dot" else None,
+            )
             if not info["roi_valid"]:
                 self._log(f"  [{name}] ROI 未设置或无效")
+            elif thresh_key == "dot":
+                edge_touches = info.get("edge_touches", {})
+                edge_text = "".join(
+                    label
+                    for key, label in [
+                        ("touches_top", "T"),
+                        ("touches_bottom", "B"),
+                        ("touches_left", "L"),
+                        ("touches_right", "R"),
+                    ]
+                    if edge_touches.get(key)
+                ) or "-"
+                self._log(
+                    f"  [{name}] 裁剪={info['view_shape']} raw像素={info.get('raw_mask_pixels', 0)} "
+                    f"prep像素={info.get('prepared_mask_pixels', 0)} raw轮廓={info.get('raw_contours', 0)} "
+                    f"prep轮廓={info.get('prepared_contours', 0)} 面积={info['contour_areas']} "
+                    f"投影后备={'Y' if info.get('projection_found') else 'N'} 触边={edge_text} "
+                    f"min_area={info['min_area']}"
+                )
             else:
                 self._log(
                     f"  [{name}] 裁剪={info['view_shape']} 匹配像素={info['mask_pixels']} "
@@ -800,6 +828,19 @@ class FishingSettingsPanel(QWidget):
 
         if packet is not None:
             obs = packet.observation
+            dot_info = None
+            if self.config is not None and self.config.rois.bar_area.valid():
+                dot_info = debug_detect(
+                    frame,
+                    source_roi,
+                    self.config.rois.bar_area,
+                    self.config.hsv_thresholds.dot,
+                    self.config.control.min_area,
+                    mode="dot",
+                    bar=obs.bar,
+                )
+                dot_info = dict(dot_info)
+                dot_info["visible"] = obs.dot is not None
             if obs.bar is not None:
                 rel = obs.bar.bbox.relative_to(source_roi.x, source_roi.y)
                 cv2.rectangle(overlay, (rel.x, rel.y), (rel.x + rel.w, rel.y + rel.h), (34, 197, 94), 2)
@@ -819,6 +860,13 @@ class FishingSettingsPanel(QWidget):
                 cv2.rectangle(overlay, (rel.x, rel.y), (rel.x + rel.w, rel.y + rel.h), (37, 99, 235), 2)
             cv2.putText(overlay, f"State: {packet.state.value}", (10, 22), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
             cv2.putText(overlay, f"Suggest: {packet.suggestion.value}", (10, 44), cv2.FONT_HERSHEY_SIMPLEX, 0.55, (255, 255, 255), 2)
+            draw_debug_panel(
+                overlay,
+                dot_debug_lines(dot_info, smoothed_x=packet.dot_x_smoothed),
+                origin=(10, 58),
+                accent_color=(245, 158, 11),
+                font_scale=0.44,
+            )
 
         rgb = cv2.cvtColor(overlay, cv2.COLOR_BGR2RGB)
         qi = QImage(rgb.data, rgb.shape[1], rgb.shape[0], rgb.strides[0], QImage.Format.Format_RGB888).copy()

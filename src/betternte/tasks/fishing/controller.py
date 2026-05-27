@@ -56,7 +56,10 @@ def compute_ad_pulse(
     - D 增益（力度越大对速度越敏感）
     - 最高脉冲上限
     """
-    if bar is None or dot is None:
+    if bar is None:
+        return Suggestion.NONE, 0.0
+
+    if dot is None and dot_x is None:
         return Suggestion.NONE, 0.0
 
     s = min(max(control.strength, 0.0), 1.0)

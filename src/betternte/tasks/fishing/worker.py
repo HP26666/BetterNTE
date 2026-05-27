@@ -16,6 +16,9 @@ from betternte.tasks.fishing.state_machine import FishingStateMachine
 from betternte.tasks.fishing.vision import analyze_frame
 
 
+_DOT_FALLBACK_TTL_SECONDS = 0.12
+
+
 class FishingTask(TriggerTask):
     """由 TaskExecutor 驱动的自动钓鱼任务。"""
 
@@ -38,6 +41,7 @@ class FishingTask(TriggerTask):
         self._last_stop_reason = ""
         self._suppress_next_stop_log = False
         self._last_frame_time: float | None = None
+        self._last_dot_seen_at: float | None = None
         self._sync_trigger_interval()
 
     @property
@@ -68,6 +72,7 @@ class FishingTask(TriggerTask):
         self._prev_bar_center = None
         self._last_logged_state = None
         self._frame_count = 0
+        self._last_dot_seen_at = None
         if self.input_ctrl is not None and hasattr(self.input_ctrl, "set_screen_size"):
             self.input_ctrl.set_screen_size((self.config.screen.width, self.config.screen.height))
         self._emit_log(
@@ -100,10 +105,13 @@ class FishingTask(TriggerTask):
 
         observation = self._sanitize_observation(analyze_frame(frame, source_roi, self.config))
         state, suggestion = self.state_machine.step(observation)
+        frame_now = time.monotonic()
 
         self._dot_x_smoothed = self._smooth(self._dot_x_smoothed, observation.dot.x if observation.dot else None)
         self._bar_center_smoothed = self._smooth(self._bar_center_smoothed, observation.bar.center if observation.bar else None)
-        self._last_frame_time = time.monotonic()
+        if observation.dot is not None:
+            self._last_dot_seen_at = frame_now
+        self._last_frame_time = frame_now
 
         if state == FishingState.CONTROLLING:
             bar_velocity = 0.0
@@ -111,11 +119,21 @@ class FishingTask(TriggerTask):
                 bar_velocity = abs(self._bar_center_smoothed - self._prev_bar_center)
             self._prev_bar_center = self._bar_center_smoothed
 
+            dot_x_for_control = self._dot_x_smoothed if observation.dot is not None else None
+            if (
+                dot_x_for_control is None
+                and observation.bar is not None
+                and self._dot_x_smoothed is not None
+                and self._last_dot_seen_at is not None
+                and frame_now - self._last_dot_seen_at <= _DOT_FALLBACK_TTL_SECONDS
+            ):
+                dot_x_for_control = self._dot_x_smoothed
+
             suggestion, pulse_duration = compute_ad_pulse(
                 observation.bar,
                 observation.dot,
                 self.config.control,
-                dot_x=self._dot_x_smoothed,
+                dot_x=dot_x_for_control,
                 bar_center=self._bar_center_smoothed,
                 prev_error_ratio=self._prev_error_ratio,
             )
@@ -153,6 +171,10 @@ class FishingTask(TriggerTask):
             self._emit_log(
                 f"[帧{self._frame_count}] {state.value} · bar={'Y' if bar_ok else 'N'} line={'Y' if dot_ok else 'N'} blue={'Y' if blue_ok else 'N'}"
             )
+
+        if suggestion == Suggestion.STOP:
+            self.stop("连续5次恢复未成功，自动停止钓鱼")
+            return
 
         if suggestion != Suggestion.NONE:
             mode_str = "HOLD" if should_hold else "tap"
